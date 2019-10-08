@@ -1,4 +1,4 @@
-package com.kaytec.app.ws;
+package com.kaytec.app.ws.io.repositories;
 
 import com.kaytec.app.ws.io.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;

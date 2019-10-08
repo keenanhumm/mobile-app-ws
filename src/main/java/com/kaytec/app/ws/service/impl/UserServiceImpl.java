@@ -1,6 +1,6 @@
 package com.kaytec.app.ws.service.impl;
 
-import com.kaytec.app.ws.UserRepository;
+import com.kaytec.app.ws.io.repositories.UserRepository;
 import com.kaytec.app.ws.io.entity.UserEntity;
 import com.kaytec.app.ws.model.dto.UserDTO;
 import com.kaytec.app.ws.service.UserService;
@@ -59,5 +59,16 @@ public class UserServiceImpl implements UserService {
 
         if (userEntityFound == null) throw new UsernameNotFoundException(email);
         return new User(userEntityFound.getEmail(), userEntityFound.getEncryptedPassword(), new ArrayList<>());
+    }
+
+    @Override
+    public UserDTO getUser(String email) {
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        if (userEntity == null) throw new UsernameNotFoundException(email);
+
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(userEntity, userDTO);
+        return userDTO;
     }
 }

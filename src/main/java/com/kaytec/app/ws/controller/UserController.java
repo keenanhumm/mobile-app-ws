@@ -19,6 +19,7 @@ public class UserController {
     public String getUser() {
         return "Get user was called";
     }
+
     @PostMapping
     public UserResponse createUser(@RequestBody UserDetailsRequest addUserRequest) {
         UserDTO userRequestDTO = new UserDTO();
@@ -32,10 +33,12 @@ public class UserController {
 
         return createdUserResponse;
     }
+
     @PutMapping
     public String updateUser() {
         return "Update user was called";
     }
+
     @DeleteMapping
     public String deleteUser() {
         return "Delete user was called";
