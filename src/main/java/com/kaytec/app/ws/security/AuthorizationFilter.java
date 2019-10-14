@@ -38,13 +38,14 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.HEADER_STRING);
+        String tokenSecret = SecurityConstants.getTokenSecret();
 
         if (token != null) {
 
             token = token.replace(SecurityConstants.TOKEN_PREFIX, "");
 
             String user = Jwts.parser()
-                    .setSigningKey( SecurityConstants.TOKEN_SECRET )
+                    .setSigningKey( tokenSecret )
                     .parseClaimsJws( token )
                     .getBody()
                     .getSubject();

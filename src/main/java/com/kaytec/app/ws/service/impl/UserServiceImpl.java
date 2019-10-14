@@ -1,7 +1,7 @@
 package com.kaytec.app.ws.service.impl;
 
-import com.kaytec.app.ws.io.repositories.UserRepository;
 import com.kaytec.app.ws.io.entity.UserEntity;
+import com.kaytec.app.ws.io.repositories.UserRepository;
 import com.kaytec.app.ws.model.dto.UserDTO;
 import com.kaytec.app.ws.service.UserService;
 import com.kaytec.app.ws.shared.Utils;
@@ -70,5 +70,16 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(userEntity, userDTO);
         return userDTO;
+    }
+
+    @Override
+    public UserDTO getUserByUserId(String userId) {
+        UserDTO userFoundDTO = new UserDTO();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if(userEntity == null) throw new UsernameNotFoundException(userId);
+        BeanUtils.copyProperties(userEntity, userFoundDTO);
+
+        return userFoundDTO;
     }
 }

@@ -49,11 +49,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String userName = ((User)authResult.getPrincipal()).getUsername();
-//        String tokenSecret = new SecurityConstants().getTokenSecret();
+        String tokenSecret = SecurityConstants.getTokenSecret();
         String token = Jwts.builder()
                 .setSubject(userName)
                 .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS512, SecurityConstants.TOKEN_SECRET)
+                .signWith(SignatureAlgorithm.HS512, tokenSecret)
                 .compact();
 
         UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
