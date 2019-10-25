@@ -1,15 +1,18 @@
 package com.kaytec.app.ws.controller;
 
-import com.kaytec.app.ws.exceptions.UserServiceException;
 import com.kaytec.app.ws.model.dto.UserDTO;
+import com.kaytec.app.ws.model.enums.OperationName;
+import com.kaytec.app.ws.model.enums.OperationStatus;
 import com.kaytec.app.ws.model.request.UserDetailsRequest;
-import com.kaytec.app.ws.model.response.ErrorMessages;
+import com.kaytec.app.ws.model.response.OperationStatusResult;
 import com.kaytec.app.ws.model.response.UserResponse;
 import com.kaytec.app.ws.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("users") // http:/localhost:8080/users
@@ -33,12 +36,8 @@ public class UserController {
             consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
             )
-    public UserResponse createUser(@RequestBody UserDetailsRequest addUserRequest) throws Exception{
+    public UserResponse createUser(@Valid @RequestBody UserDetailsRequest addUserRequest){
         UserDTO userRequestDTO = new UserDTO();
-
-        if (addUserRequest.getFirstName().isEmpty()) {
-            throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
-        }
 
         BeanUtils.copyProperties(addUserRequest, userRequestDTO);
 
@@ -50,14 +49,39 @@ public class UserController {
         return createdUserResponse;
     }
 
-    @PutMapping
-    public String updateUser() {
-        return "Update user was called";
+    @PutMapping(
+            path="/{id}",
+            consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+            produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+            )
+    public UserResponse updateUser(@PathVariable String id, @RequestBody UserDetailsRequest updateUserRequest) {
+        UserDTO userRequestDTO = new UserDTO();
+
+        BeanUtils.copyProperties(updateUserRequest, userRequestDTO);
+
+        UserDTO updateUserDTO = userService.updateUser(id, userRequestDTO);
+
+        UserResponse updatedUserResponse = new UserResponse();
+        BeanUtils.copyProperties(updateUserDTO, updatedUserResponse);
+
+        return updatedUserResponse;
     }
 
-    @DeleteMapping
-    public String deleteUser() {
-        return "Delete user was called";
+    @DeleteMapping(
+            path="/{id}",
+            consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+            produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+    )
+    public OperationStatusResult deleteUser(@PathVariable String id) {
+        OperationStatusResult operationStatusResult = new OperationStatusResult();
+
+        operationStatusResult.setOperationName(OperationName.DELETE.name());
+
+        userService.deleteUser(id);
+
+        operationStatusResult.setOperationResult(OperationStatus.SUCCESS.name());
+
+        return operationStatusResult;
     }
 
 }

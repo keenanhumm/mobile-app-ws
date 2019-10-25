@@ -1,10 +1,23 @@
 package com.kaytec.app.ws.model.request;
 
-public class UserDetailsRequest {
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
+public class UserDetailsRequest {
+    @NotNull
+    @NotEmpty
     private String firstName;
+
+    @NotNull
+    @NotEmpty
     private String lastName;
+
+    @NotNull
+    @NotEmpty
     private String email;
+
+    @NotNull
+    @NotEmpty
     private String password;
 
     public String getFirstName() {

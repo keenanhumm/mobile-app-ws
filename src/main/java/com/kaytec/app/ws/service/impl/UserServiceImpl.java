@@ -1,8 +1,10 @@
 package com.kaytec.app.ws.service.impl;
 
+import com.kaytec.app.ws.exceptions.UserServiceException;
 import com.kaytec.app.ws.io.entity.UserEntity;
 import com.kaytec.app.ws.io.repositories.UserRepository;
 import com.kaytec.app.ws.model.dto.UserDTO;
+import com.kaytec.app.ws.model.response.ErrorMessages;
 import com.kaytec.app.ws.service.UserService;
 import com.kaytec.app.ws.shared.Utils;
 import org.springframework.beans.BeanUtils;
@@ -54,6 +56,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO updateUser(String id, UserDTO userDTO) {
+        UserDTO updatedUserDTO = new UserDTO();
+        UserEntity userEntity = userRepository.findByUserId(id);
+
+        if(userEntity == null) throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+
+        userEntity.setFirstName(userDTO.getFirstName());
+        userEntity.setLastName(userDTO.getLastName());
+
+        UserEntity updatedUserEntity = userRepository.save(userEntity);
+
+        BeanUtils.copyProperties(updatedUserEntity, updatedUserDTO);
+
+        return updatedUserDTO;
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntityFound = userRepository.findByEmail(email);
 
@@ -77,9 +96,20 @@ public class UserServiceImpl implements UserService {
         UserDTO userFoundDTO = new UserDTO();
         UserEntity userEntity = userRepository.findByUserId(userId);
 
-        if(userEntity == null) throw new UsernameNotFoundException(userId);
+        if(userEntity == null) throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         BeanUtils.copyProperties(userEntity, userFoundDTO);
 
         return userFoundDTO;
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        UserEntity targetUser = userRepository.findByUserId(userId);
+
+        if(targetUser == null) {
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+
+        userRepository.delete(targetUser);
     }
 }
