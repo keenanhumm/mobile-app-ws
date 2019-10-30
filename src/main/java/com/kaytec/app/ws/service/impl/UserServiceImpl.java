@@ -9,6 +9,9 @@ import com.kaytec.app.ws.service.UserService;
 import com.kaytec.app.ws.shared.Utils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -89,6 +93,24 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(userEntity, userDTO);
         return userDTO;
+    }
+
+    @Override
+    public List<UserDTO> getUsers(int page, int limit) {
+        List<UserDTO> returnedUsers = new ArrayList<>();
+
+        Pageable pageable = PageRequest.of(page, limit);
+
+        Page<UserEntity> userEntityPage = userRepository.findAll(pageable);
+        List<UserEntity> returnedUserEntities = userEntityPage.getContent();
+
+        returnedUserEntities.parallelStream().forEach(userEntity -> {
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(userEntity, userDTO);
+            returnedUsers.add(userDTO);
+        });
+
+        return returnedUsers;
     }
 
     @Override

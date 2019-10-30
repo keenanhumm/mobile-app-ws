@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("users") // http:/localhost:8080/users
@@ -82,6 +84,27 @@ public class UserController {
         operationStatusResult.setOperationResult(OperationStatus.SUCCESS.name());
 
         return operationStatusResult;
+    }
+
+    @GetMapping(
+        produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }
+    )
+    public List<UserResponse> getUsers(@RequestParam(value = "page", defaultValue = "0") int page,
+                                       @RequestParam(value = "limit", defaultValue = "25") int limit)
+    {
+        if (page > 0) page = page - 1;
+
+        List<UserResponse> users = new ArrayList<>();
+
+        List<UserDTO> userDTOs = userService.getUsers(page, limit);
+
+        userDTOs.parallelStream().forEach(userDTO -> {
+            UserResponse userResponse = new UserResponse();
+            BeanUtils.copyProperties(userDTO, userResponse);
+            users.add(userResponse);
+        });
+
+        return users;
     }
 
 }
